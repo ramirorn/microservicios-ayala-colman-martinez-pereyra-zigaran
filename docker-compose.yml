@@ -1,0 +1,32 @@
+services:
+  gateway:
+    build: ./gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - USUARIOS_URL=http://usuarios:3001
+      - PEDIDOS_URL=http://pedidos:3002
+      - PAGOS_URL=http://pagos:3003
+    depends_on:
+      - usuarios
+      - pedidos
+      - pagos
+    init: true
+
+  usuarios:
+    build: ./usuarios
+    init: true
+
+  pedidos:
+    build: ./pedidos
+    environment:
+      - USUARIOS_URL=http://usuarios:3001
+      - PAGOS_URL=http://pagos:3003
+    depends_on:
+      - usuarios
+      - pagos
+    init: true
+
+  pagos:
+    build: ./pagos
+    init: true

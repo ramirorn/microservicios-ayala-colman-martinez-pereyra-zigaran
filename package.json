@@ -1,0 +1,12 @@
+{
+  "name": "demo-microservicios",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "instalar": "npm install && npm install --prefix gateway && npm install --prefix usuarios && npm install --prefix pedidos && npm install --prefix pagos",
+    "start": "concurrently -n gateway,usuarios,pedidos,pagos \"npm start --prefix gateway\" \"npm start --prefix usuarios\" \"npm start --prefix pedidos\" \"npm start --prefix pagos\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}

@@ -1,0 +1,10 @@
+graph TD
+    C[Cliente<br/>Navegador - index.html] -->|HTTP :3000| G[API Gateway<br/>Node.js + Express :3000]
+    G -->|/api/usuarios| U[Servicio Usuarios<br/>:3001]
+    G -->|/api/pedidos| P[Servicio Pedidos<br/>:3002]
+    G -->|/api/pagos| PA[Servicio Pagos<br/>:3003]
+    P -.->|GET /usuarios/:id| U
+    P -.->|POST /pagos| PA
+    U --> DBU[(BD Usuarios)]
+    P --> DBP[(BD Pedidos)]
+    PA --> DBPA[(BD Pagos)]

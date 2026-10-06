@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tienda Demo - Microservicios</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 900px; margin: 30px auto; color: #111; }
+    h1 { margin-bottom: 4px; }
+    section { border: 1px solid #ccc; border-radius: 6px; padding: 14px; margin: 14px 0; }
+    .servicios span { display: inline-block; padding: 6px 12px; margin-right: 8px; border-radius: 4px; color: #fff; }
+    .ok { background: #2e7d32; }
+    .caido { background: #c62828; }
+    input, select, button { padding: 6px; margin: 4px 4px 4px 0; }
+    table { width: 100%; border-collapse: collapse; }
+    td, th { border-bottom: 1px solid #ddd; padding: 6px; text-align: left; }
+    pre { background: #f4f4f4; padding: 10px; border-radius: 4px; min-height: 40px; }
+  </style>
+</head>
+<body>
+  <h1>Tienda Demo</h1>
+  <p>Cliente que habla solo con el API Gateway (puerto 3000)</p>
+
+  <section>
+    <h3>Estado de los servicios</h3>
+    <div class="servicios" id="estado"></div>
+  </section>
+
+  <section>
+    <h3>Nueva compra</h3>
+    <select id="usuario"></select>
+    <input id="producto" placeholder="Producto" value="Zapatillas">
+    <input id="monto" type="number" placeholder="Monto" value="50000">
+    <button onclick="comprar()">Comprar</button>
+    <p>Respuesta:</p>
+    <pre id="respuesta"></pre>
+  </section>
+
+  <section>
+    <h3>Pedidos</h3>
+    <table>
+      <thead><tr><th>ID</th><th>Cliente</th><th>Producto</th><th>Monto</th><th>Estado</th><th></th></tr></thead>
+      <tbody id="pedidos"></tbody>
+    </table>
+  </section>
+
+  <script>
+    async function llamar(metodo, ruta, cuerpo) {
+      const respuesta = await fetch(ruta, {
+        method: metodo,
+        headers: { "Content-Type": "application/json" },
+        body: cuerpo ? JSON.stringify(cuerpo) : undefined
+      });
+      return { codigo: respuesta.status, datos: await respuesta.json() };
+    }
+
+    async function cargarEstado() {
+      const { datos } = await llamar("GET", "/estado");
+      document.getElementById("estado").innerHTML = Object.entries(datos)
+        .map(([nombre, estado]) => `<span class="${estado}">${nombre}: ${estado}</span>`)
+        .join("");
+    }
+
+    async function cargarUsuarios() {
+      const { datos } = await llamar("GET", "/api/usuarios");
+      if (!Array.isArray(datos)) return;
+      document.getElementById("usuario").innerHTML = datos
+        .map((u) => `<option value="${u.id}">${u.nombre}</option>`)
+        .join("");
+    }
+
+    async function cargarPedidos() {
+      const { datos } = await llamar("GET", "/api/pedidos");
+      if (!Array.isArray(datos)) return;
+      document.getElementById("pedidos").innerHTML = datos
+        .map((p) => `<tr>
+          <td>${p.id}</td><td>${p.cliente}</td><td>${p.producto}</td><td>$${p.monto}</td><td>${p.estado}</td>
+          <td>${p.estado === "PENDIENTE_PAGO" ? `<button onclick="reintentar(${p.id})">Reintentar pago</button>` : ""}</td>
+        </tr>`)
+        .join("");
+    }
+
+    function mostrar(resultado) {
+      document.getElementById("respuesta").textContent =
+        `HTTP ${resultado.codigo}\n` + JSON.stringify(resultado.datos, null, 2);
+    }
+
+    async function comprar() {
+      const resultado = await llamar("POST", "/api/pedidos", {
+        usuarioId: Number(document.getElementById("usuario").value),
+        producto: document.getElementById("producto").value,
+        monto: Number(document.getElementById("monto").value)
+      });
+      mostrar(resultado);
+      cargarPedidos();
+    }
+
+    async function reintentar(id) {
+      mostrar(await llamar("POST", `/api/pedidos/${id}/reintentar-pago`));
+      cargarPedidos();
+    }
+
+    cargarEstado();
+    cargarUsuarios();
+    cargarPedidos();
+    setInterval(cargarEstado, 2000);
+  </script>
+</body>
+</html>

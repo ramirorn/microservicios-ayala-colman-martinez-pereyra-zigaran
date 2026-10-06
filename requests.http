@@ -1,0 +1,53 @@
+### Estado de todos los servicios
+GET http://localhost:3000/estado
+
+### Listar usuarios
+GET http://localhost:3000/api/usuarios
+
+### Crear usuario
+POST http://localhost:3000/api/usuarios
+Content-Type: application/json
+
+{
+  "nombre": "Carla Ruiz",
+  "email": "carla@mail.com"
+}
+
+### Compra aprobada
+POST http://localhost:3000/api/pedidos
+Content-Type: application/json
+
+{
+  "usuarioId": 1,
+  "producto": "Zapatillas",
+  "monto": 50000
+}
+
+### Compra rechazada (supera el limite de 100000)
+POST http://localhost:3000/api/pedidos
+Content-Type: application/json
+
+{
+  "usuarioId": 2,
+  "producto": "Notebook",
+  "monto": 900000
+}
+
+### Usuario inexistente
+POST http://localhost:3000/api/pedidos
+Content-Type: application/json
+
+{
+  "usuarioId": 99,
+  "producto": "Remera",
+  "monto": 10000
+}
+
+### Listar pedidos
+GET http://localhost:3000/api/pedidos
+
+### Reintentar pago de un pedido pendiente
+POST http://localhost:3000/api/pedidos/3/reintentar-pago
+
+### Listar pagos
+GET http://localhost:3000/api/pagos

@@ -1,0 +1,27 @@
+sequenceDiagram
+    actor Cliente
+    participant Gateway as API Gateway
+    participant Pedidos as Servicio Pedidos
+    participant Usuarios as Servicio Usuarios
+    participant Pagos as Servicio Pagos
+
+    Cliente->>Gateway: POST /api/pedidos {usuarioId, producto, monto}
+    Gateway->>Pedidos: POST /pedidos
+    Pedidos->>Usuarios: GET /usuarios/{usuarioId}
+    alt Usuario no existe
+        Usuarios-->>Pedidos: 404
+        Pedidos-->>Gateway: 404 Usuario no encontrado
+        Gateway-->>Cliente: 404
+    else Usuario existe
+        Usuarios-->>Pedidos: 200 {id, nombre, email}
+        Pedidos->>Pedidos: Guardar pedido (CREADO)
+        Pedidos->>Pagos: POST /pagos {pedidoId, monto}
+        alt Pagos disponible
+            Pagos-->>Pedidos: 201 {estado: APROBADO o RECHAZADO}
+            Pedidos-->>Gateway: 201 {estado: CONFIRMADO o CANCELADO}
+            Gateway-->>Cliente: 201
+        else Pagos caído
+            Pedidos-->>Gateway: 202 {estado: PENDIENTE_PAGO}
+            Gateway-->>Cliente: 202
+        end
+    end
