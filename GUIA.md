@@ -161,3 +161,28 @@ Pedidos → Gateway (línea 50 `res.status(...).json(datos)`) → navegador, que
 - **¿Por qué cada uno tiene su base?** Para que un servicio no dependa del esquema de otro. Si Pagos cambia su tabla, Pedidos no se rompe.
 - **¿Qué pasa con la consistencia?** Es el desafío: el pedido existe aunque el pago no. Por eso el estado `PENDIENTE_PAGO` y el reintento (en producción: colas de mensajes / patrón Saga).
 - **¿Por qué el pagoId se repite después de reiniciar Pagos?** Porque la base es en memoria y se reinicia. En producción sería una base real (PostgreSQL, MongoDB).
+
+---
+
+## Frontend centralizado (React + Vite + Tailwind)
+
+Carpeta `frontend/`. Es un contenedor más en `docker-compose.yml` (puerto **8080**).
+
+```bash
+docker compose up --build
+```
+
+Abrir http://localhost:8080
+
+- Igual que la tienda original, **solo habla con el API Gateway**: nginx reenvía `/api/...` y `/estado` a `http://gateway:3000`.
+- Desde una sola pantalla se usan todos los servicios: estado en vivo, compras, pedidos (con "Reintentar pago"), usuarios (listar, crear, buscar por ID) y pagos.
+- El panel "Última respuesta" muestra el código HTTP y el JSON que devolvió el Gateway, ideal para explicar cada escenario.
+
+| Archivo | Qué hace |
+|---|---|
+| `frontend/src/api.js` | Función `llamar()`: único punto de contacto con el Gateway |
+| `frontend/src/App.jsx` | Carga los datos cada 3 segundos y arma la pantalla |
+| `frontend/src/componentes/` | Un componente por sección (Usuarios, Pedidos, Pagos, etc.) |
+| `frontend/nginx.conf` | Sirve la app y reenvía las llamadas al Gateway |
+
+Sin Docker: `npm install --prefix frontend` y `npm run dev --prefix frontend` (abre en http://localhost:5173, con el Gateway corriendo en 3000).

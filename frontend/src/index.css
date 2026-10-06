@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+/* Identidad visual: papel, tinta y un solo acento (tomate) */
+@theme {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque", ui-sans-serif, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --color-papel: #f2ede3;
+  --color-papel-claro: #faf7f1;
+  --color-tinta: #171512;
+  --color-gris: #6f6a60;
+  --color-linea: #d6cfc1;
+  --color-tomate: #e2462b;
+  --color-verde: #1d6b45;
+  --color-mostaza: #b9820a;
+}
+
+body {
+  @apply min-h-screen bg-papel font-sans text-tinta antialiased;
+}
+
+::selection {
+  @apply bg-tomate text-papel-claro;
+}
+
+@layer components {
+  .seccion {
+    @apply border-2 border-tinta bg-papel-claro;
+  }
+  .encabezado {
+    @apply flex items-baseline gap-3 border-b-2 border-tinta px-5 py-3;
+  }
+  .encabezado h2 {
+    @apply font-display text-xl font-extrabold tracking-tight;
+  }
+  .numero {
+    @apply font-mono text-xs font-medium text-tomate;
+  }
+  .etiqueta {
+    @apply mb-1 block font-mono text-[11px] uppercase tracking-widest text-gris;
+  }
+  .campo {
+    @apply w-full border-2 border-tinta bg-papel-claro px-3 py-2 text-sm text-tinta outline-none placeholder:text-gris/70 focus:bg-white focus:shadow-[3px_3px_0_var(--color-tomate)];
+  }
+  .boton {
+    @apply inline-flex items-center justify-center gap-2 border-2 border-tinta bg-tinta px-5 py-2 font-mono text-sm font-semibold uppercase tracking-wider text-papel-claro transition hover:bg-tomate hover:border-tomate active:translate-y-px disabled:cursor-not-allowed disabled:opacity-40;
+  }
+  .boton-secundario {
+    @apply inline-flex items-center justify-center border-2 border-tinta px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider transition hover:bg-tinta hover:text-papel-claro disabled:opacity-40;
+  }
+}
